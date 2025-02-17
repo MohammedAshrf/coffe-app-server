@@ -1,37 +1,49 @@
 import { Document, model, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { IOrder } from './Order.mode';
 
 export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
-  passwordChangeAt: Date;
   role: 'user' | 'admin';
-  active: boolean;
+  isAdmin: boolean;
+  cart: { productId: string; quantity: number }[];
+  orders: string[];
   createdAt: Date;
   updatedAt: Date;
+  passwordChangeAt: Date;
   passwordConfirm: string;
-  isAdmin: boolean;
   refreshToken: string;
-  age: number;
   comparePassword(password: string): Promise<boolean>;
   changedPasswordAfter(JWTTimestamp: number): boolean;
 }
+
+// When `.populate("orders")` is used, this type applies
+export interface IUserPopulated extends Omit<IUser, 'orders'> {
+  orders: IOrder[]; // Orders are now full objects
+}
+
 const userSchema = new Schema<IUser>(
   {
     name: { type: String },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, select: false },
-    createdAt: { type: Date, default: Date.now },
     passwordChangeAt: { type: Date },
     isAdmin: { type: Boolean, default: false },
     refreshToken: { type: String },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
-    active: { type: Boolean, default: true },
-    age: { type: Number },
+    cart: [
+      {
+        productId: { type: Schema.Types.ObjectId, ref: 'Product' },
+        quantity: Number,
+      },
+    ],
+    orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }], // Referencing orders
   },
   { timestamps: true },
 );
+
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);

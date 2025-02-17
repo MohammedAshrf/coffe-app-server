@@ -11,12 +11,7 @@ const router: Router = Router();
 // Create a new post
 router.post('/', verifyToken, createPost);
 
-// Update (edit) an existing post
-// router.put('post/:id', verifyToken, updatePost);
-
-// Delete a post
-// router.delete('post/:id', verifyToken, deletePost);
-
+// Update or Delete a post
 router
   .route('/:id')
   .put(verifyToken, updatePost)

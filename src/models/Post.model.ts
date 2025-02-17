@@ -6,7 +6,7 @@ export interface IPost extends Document {
   author: mongoose.Types.ObjectId; // Reference to the user who created the post
 }
 
-const PostSchema: Schema = new Schema(
+export const PostSchema: Schema = new Schema(
   {
     title: { type: String, required: true },
     content: { type: String, required: true },

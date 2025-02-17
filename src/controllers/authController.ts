@@ -4,19 +4,19 @@ import AppError from '../utils/AppError';
 import { IUser, User } from '../models/User.model';
 import { catchError } from '../utils/catchError';
 
-const JWT_EXPIRES = '10m'; // Short-lived tokens, because who likes long waits? 😜
-const REFRESH_TOKEN_EXPIRES = '7d'; // The refresh token gets to hang out a bit longer, 7 days, lucky guy.
+const ACCESS_TOKEN_EXPIRES = '30m'; // Short-lived tokens
+const REFRESH_TOKEN_EXPIRES = '7d'; // The refresh token gets to hang out a bit longer.
 
 // Generate JWT token
 const generateToken = (id: string): string => {
   return jwt.sign({ id }, process.env.JWT_SECRET as string, {
-    expiresIn: JWT_EXPIRES,
+    expiresIn: ACCESS_TOKEN_EXPIRES,
   });
 };
 
 // Cookie options
 const cookieOptions: CookieOptions = {
-  expires: new Date(Date.now() + 3600000), // 1 hour from now
+  expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from registration/login
   httpOnly: true,
   sameSite: 'strict', // Can be 'strict', 'lax', or 'none'
   secure: process.env.NODE_ENV === 'production', // Only secure cookies in production
@@ -48,6 +48,7 @@ const sendResponse = async (
   user.password = undefined; // Don’t send password in the response
   res.status(code).json({ status: 'success', token, data: { user } });
 };
+
 // Register handler
 export const register = catchError(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {

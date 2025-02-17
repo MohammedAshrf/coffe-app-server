@@ -6,7 +6,7 @@ import { catchError } from '../utils/catchError';
 // Extend Express Request to include the user (provided by JWT middleware)
 interface AuthRequest extends Request {
   user?: {
-    _id: string;
+    id: string;
     role?: string; // assuming you have a role property to check for admin privileges
   };
 }
@@ -37,7 +37,7 @@ export const createPost = catchError(
     const newPost: IPost = await Post.create({
       title,
       content,
-      author: req.user._id,
+      author: req.user.id,
     });
 
     res
@@ -76,7 +76,7 @@ export const updatePost = catchError(
 
     // Check if the authenticated user is the owner of the post or an admin
     if (
-      post.author.toString() !== req.user?._id.toString() &&
+      post.author.toString() !== req.user?.id.toString() &&
       req.user?.role !== 'admin'
     ) {
       return next(
@@ -115,7 +115,7 @@ export const deletePost = catchError(
 
     // Check if the authenticated user is the owner of the post or an admin
     if (
-      post.author.toString() !== req.user?._id.toString() &&
+      post.author.toString() !== req.user?.id.toString() &&
       req.user?.role !== 'admin'
     ) {
       return next(
