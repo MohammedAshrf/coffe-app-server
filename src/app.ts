@@ -2,6 +2,8 @@ import express, { Application, Request, Response } from 'express';
 import { authRoutes } from './routes/auth';
 import dotenv from 'dotenv';
 import { postRoutes } from './routes/post';
+import { productRoutes } from './routes/product';
+import { orderRoutes } from './routes/order';
 
 dotenv.config();
 
@@ -18,7 +20,13 @@ app.get('/', (req: Request, res: Response) => {
 // Authentication routes
 app.use('/auth', authRoutes);
 
-// Authentication routes
+// Post routes
 app.use('/posts', postRoutes);
+
+// Product routes
+app.use('/products', productRoutes);
+
+// Order routes
+app.use('/orders', orderRoutes);
 
 export default app;

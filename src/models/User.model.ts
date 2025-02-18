@@ -1,6 +1,6 @@
 import { Document, model, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { IOrder } from './Order.mode';
+import { IOrder } from './Order.model';
 
 export interface IUser extends Document {
   name: string;

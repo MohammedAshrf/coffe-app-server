@@ -28,11 +28,11 @@ export interface IProductPopulated extends Omit<IProduct, 'reviews'> {
 }
 
 const ProductSchema = new Schema({
-  name: String,
-  description: String,
-  price: Number,
-  imageUrl: String,
-  category: String,
+  name: { type: String, required: true },
+  description: { type: String, required: true },
+  price: { type: Number, required: true },
+  imageUrl: { type: String, required: true },
+  category: { type: String, required: true },
   reviews: [
     {
       userId: { type: Schema.Types.ObjectId, ref: 'User' },

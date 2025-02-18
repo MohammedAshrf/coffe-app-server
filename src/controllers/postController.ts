@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Post, IPost } from '../models/Post.model';
 import AppError from '../utils/AppError';
 import { catchError } from '../utils/catchError';
+import { IUser } from '../models/User.model';
 
 // Extend Express Request to include the user (provided by JWT middleware)
 interface AuthRequest extends Request {
@@ -11,10 +12,21 @@ interface AuthRequest extends Request {
   };
 }
 
-/**
- * Create a new post.
- * Requires: title, content in req.body and a valid user in req.user.
- */
+export const getAllPosts = catchError(
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const posts = await Post.find();
+
+    if (posts.length === 0) {
+      res.status(200).json({ message: 'No posts found', data: { posts } });
+      return;
+    }
+
+    res
+      .status(200)
+      .json({ message: 'Posts fetched successfully', data: { posts: posts } });
+  },
+);
+
 export const createPost = catchError(
   async (
     req: AuthRequest,
@@ -46,11 +58,26 @@ export const createPost = catchError(
   },
 );
 
-/**
- * Update (edit) a post.
- * Requires: Post id in req.params and title and/or content in req.body.
- * Only the owner or an admin can update the post.
- */
+export const getPost = catchError(
+  async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    const { id } = req.params;
+
+    const post = await Post.findById(id);
+
+    if (!post) {
+      return next(new AppError('Post not found', 404));
+    }
+
+    res
+      .status(200)
+      .json({ message: 'Post fetched successfully', data: { post } });
+  },
+);
+
 export const updatePost = catchError(
   async (
     req: AuthRequest,
@@ -69,7 +96,7 @@ export const updatePost = catchError(
       );
     }
 
-    const post = await Post.findById(id);
+    const post = await Post.findByIdAndUpdate(id);
     if (!post) {
       return next(new AppError('Post not found', 404));
     }
@@ -95,11 +122,6 @@ export const updatePost = catchError(
   },
 );
 
-/**
- * Delete a post.
- * Requires: Post id in req.params.
- * Only the owner or an admin can delete the post.
- */
 export const deletePost = catchError(
   async (
     req: AuthRequest,

@@ -7,6 +7,7 @@ export interface IOrder {
   userId: Types.ObjectId;
   totalPrice: number;
   status: 'pending' | 'completed' | 'canceled';
+  notes: string;
   orderItems: {
     productId: Types.ObjectId;
     quantity: number;
@@ -27,12 +28,13 @@ export interface IOrderPopulated extends Omit<IOrder, 'userId' | 'orderItems'> {
 
 const OrderSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'User' },
-  totalPrice: Number,
+  totalPrice: { type: Number, required: true },
   status: {
     type: String,
     enum: ['pending', 'completed', 'canceled'],
     default: 'pending',
   },
+  notes: { type: String },
   orderItems: [
     {
       productId: { type: Schema.Types.ObjectId, ref: 'Product' },
@@ -43,4 +45,4 @@ const OrderSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-export const Post = mongoose.model<IOrder>('Order', OrderSchema);
+export const Order = mongoose.model<IOrder>('Order', OrderSchema);
