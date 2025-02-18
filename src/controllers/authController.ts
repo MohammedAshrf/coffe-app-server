@@ -93,55 +93,55 @@ interface IDecoded {
 
 // Protection Middleware
 // (Check for refresh token expirattion and password change)
-export const protect = catchError(
-  async (
-    req: Request extends { user: IUser } ? Request & { user: IUser } : Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    let token = '';
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith('Bearer')
-    ) {
-      token = req.headers.authorization.split(' ')[1];
-    }
-    if (!token)
-      return next(
-        new AppError('You are not logged in. Please log in to get access', 401),
-      );
-    console.log(token);
-    const decoded: IDecoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET as string,
-    ) as JwtPayload extends {
-      id: string;
-      iat: number;
-    }
-      ? JwtPayload
-      : never;
-    const currentUser = await User.findById(decoded.id);
-    console.log(decoded);
-    if (!currentUser)
-      return next(
-        new AppError(
-          'The user belonging to this token does no longer exist',
-          401,
-        ),
-      );
-    if (currentUser.changedPasswordAfter(decoded?.iat)) {
-      return next(
-        new AppError(
-          'User recently changed password. Please log in again',
-          401,
-        ),
-      );
-    }
-    //@ts-ignore
-    req.user = currentUser;
-    next();
-  },
-);
+// export const protect = catchError(
+//   async (
+//     req: Request extends { user: IUser } ? Request & { user: IUser } : Request,
+//     res: Response,
+//     next: NextFunction,
+//   ): Promise<void> => {
+//     let token = '';
+//     if (
+//       req.headers.authorization &&
+//       req.headers.authorization.startsWith('Bearer')
+//     ) {
+//       token = req.headers.authorization.split(' ')[1];
+//     }
+//     if (!token)
+//       return next(
+//         new AppError('You are not logged in. Please log in to get access', 401),
+//       );
+//     console.log(token);
+//     const decoded: IDecoded = jwt.verify(
+//       token,
+//       process.env.JWT_SECRET as string,
+//     ) as JwtPayload extends {
+//       id: string;
+//       iat: number;
+//     }
+//       ? JwtPayload
+//       : never;
+//     const currentUser = await User.findById(decoded.id);
+//     console.log(decoded);
+//     if (!currentUser)
+//       return next(
+//         new AppError(
+//           'The user belonging to this token does no longer exist',
+//           401,
+//         ),
+//       );
+//     if (currentUser.changedPasswordAfter(decoded?.iat)) {
+//       return next(
+//         new AppError(
+//           'User recently changed password. Please log in again',
+//           401,
+//         ),
+//       );
+//     }
+//     //@ts-ignore
+//     req.user = currentUser;
+//     next();
+//   },
+// );
 
 // Refresh token handler
 export const refresh = catchError(

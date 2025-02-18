@@ -13,9 +13,8 @@ interface AuthRequest extends Request {
 
 export const getAllOrders = catchError(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const orders = await Order.find();
-    //   .populate('orderItems.productId')
-    //   .populate('userId');
+    const orders = await Order.find().populate('orderItems.productId');
+    // .populate('userId');
 
     if (orders.length === 0) {
       res.status(200).json({ message: 'No Orders found', data: { orders } });
@@ -26,6 +25,8 @@ export const getAllOrders = catchError(
       message: 'Orders fetched successfully',
       data: { orders },
     });
+
+    console.log('Orders:', orders);
   },
 );
 
@@ -43,12 +44,16 @@ export const createOrder = catchError(
       );
     }
 
+    const userId = req.user?.id;
+
     const newOrder: IOrder = await Order.create({
-      userId: req.user?.id,
+      userId: userId,
       orderItems,
       totalPrice,
       status: status || 'pending',
     });
+
+    await User.findByIdAndUpdate(userId, { $push: { orders: newOrder._id } });
 
     res.status(201).json({
       message: 'Order created successfully',

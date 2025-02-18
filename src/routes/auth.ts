@@ -8,10 +8,8 @@ interface AuthRequest extends Request {
 
 const router: Router = Router();
 
-// register route
 router.post('/register', register);
 
-// Login route
 router.post('/login', login);
 
 // Protected route

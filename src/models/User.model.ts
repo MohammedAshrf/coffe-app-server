@@ -39,7 +39,7 @@ const userSchema = new Schema<IUser>(
         quantity: Number,
       },
     ],
-    orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }], // Referencing orders
+    orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }],
   },
   { timestamps: true },
 );
