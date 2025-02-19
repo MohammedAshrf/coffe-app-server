@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import AppError from '../utils/AppError';
 import { catchError } from '../utils/catchError';
 import { IProduct, Product } from '../models/Product.model';
-import { IUser, User } from '../models/User.model';
+import { User } from '../models/User.model';
 
 // Extend Express Request to include the user (provided by JWT middleware)
 interface AuthRequest extends Request {

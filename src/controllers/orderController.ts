@@ -50,7 +50,7 @@ export const createOrder = catchError(
       userId: userId,
       orderItems,
       totalPrice,
-      status: status || 'pending',
+      status: status,
     });
 
     await User.findByIdAndUpdate(userId, { $push: { orders: newOrder._id } });
@@ -110,24 +110,35 @@ export const updateOrder = catchError(
       );
     }
 
+    const order = await Order.findById(id);
+    const userId = order?.userId.toString();
+
+    console.log('userId', userId);
+    console.log('req.user?.id', req.user?.id);
+
     const user = await User.findById(req.user?.id);
-    if (user?.role !== 'admin') {
+    if (userId !== req.user?.id && user?.role !== 'admin') {
       return next(new AppError('You are not authorized to update orders', 403));
     }
 
-    const order = await Order.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true },
-    ).populate('orderItems.productId');
+    const updatedorder = await Order.findByIdAndUpdate(id).populate(
+      'orderItems.productId',
+    );
 
-    if (!order) {
+    if (!updatedorder) {
       return next(new AppError('Order not found', 404));
     }
 
+    if (status) updatedorder.status = status;
+    if (status == 'canceled') {
+      updatedorder.canceledAt = new Date();
+    }
+
+    await updatedorder.save();
+
     res.status(200).json({
       message: 'Order updated successfully',
-      data: { order },
+      data: { updatedorder },
     });
   },
 );

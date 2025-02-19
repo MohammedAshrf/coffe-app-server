@@ -7,7 +7,6 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: 'user' | 'admin';
-  isAdmin: boolean;
   cart: { productId: string; quantity: number }[];
   orders: string[];
   createdAt: Date;
@@ -30,7 +29,6 @@ const userSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, select: false },
     passwordChangeAt: { type: Date },
-    isAdmin: { type: Boolean, default: false },
     refreshToken: { type: String },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     cart: [

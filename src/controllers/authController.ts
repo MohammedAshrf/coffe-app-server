@@ -198,16 +198,16 @@ export const logout = catchError(
 );
 
 // Delete handler
-export const deleteUser = catchError(
-  async (req: Request, res: Response): Promise<any> => {
-    const userId = req.params.id; // Get user ID from request parameters
-    const deletedUser = await User.findByIdAndDelete(userId);
+// export const deleteUser = catchError(
+//   async (req: Request, res: Response): Promise<any> => {
+//     const userId = req.params.id; // Get user ID from request parameters
+//     const deletedUser = await User.findByIdAndDelete(userId);
 
-    if (!deletedUser) {
-      res.status(404).json({ message: 'User not found' });
-      return;
-    }
+//     if (!deletedUser) {
+//       res.status(404).json({ message: 'User not found' });
+//       return;
+//     }
 
-    res.json({ message: 'User deleted successfully' });
-  },
-);
+//     res.json({ message: 'User deleted successfully' });
+//   },
+// );

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import AppError from '../utils/AppError';
 import { catchError } from '../utils/catchError';
-import { IUser, User } from '../models/User.model';
+import { User } from '../models/User.model';
 
 interface AuthRequest extends Request {
   user?: {
@@ -11,7 +11,11 @@ interface AuthRequest extends Request {
 }
 
 export const getAllUsers = catchError(
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     const users = await User.find()
       .select('-password -refreshToken -passwordChangeAt')
       .populate('cart.productId')
@@ -20,6 +24,12 @@ export const getAllUsers = catchError(
     if (users.length === 0) {
       res.status(200).json({ message: 'No Users found', data: { users } });
       return;
+    }
+
+    if (req.user?.role !== 'admin') {
+      return next(
+        new AppError('You are not authorized to delete this user', 403),
+      );
     }
 
     res.status(200).json({
@@ -49,7 +59,6 @@ export const updateUser = catchError(
       return next(new AppError('User not found', 404));
     }
 
-    // Updated authorization check
     if (req.user?.role !== 'admin' && req.user?.id !== id) {
       return next(
         new AppError('You are not authorized to update this user', 403),
@@ -87,6 +96,12 @@ export const getUser = catchError(
 
     if (!user) {
       return next(new AppError('User not found', 404));
+    }
+
+    if (req.user?.role !== 'admin' && req.user?.id !== id) {
+      return next(
+        new AppError('You are not authorized to delete this user', 403),
+      );
     }
 
     res
@@ -132,6 +147,9 @@ export const getUserOrders = catchError(
     if (!user) {
       return next(new AppError('User not found', 404));
     }
+
+    console.log('req.user?.id:', req.user?.id);
+    console.log('id:', id);
 
     if (req.user?.role !== 'admin' && req.user?.id !== id) {
       return next(

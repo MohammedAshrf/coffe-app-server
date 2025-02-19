@@ -7,6 +7,7 @@ export interface IOrder {
   userId: Types.ObjectId;
   totalPrice: number;
   status: 'pending' | 'completed' | 'canceled';
+  canceledAt: Date;
   notes: string;
   orderItems: {
     productId: Types.ObjectId;
@@ -18,9 +19,9 @@ export interface IOrder {
 
 // Populated version
 export interface IOrderPopulated extends Omit<IOrder, 'userId' | 'orderItems'> {
-  userId: IUser; // Now contains the full User object
+  userId: IUser;
   orderItems: {
-    productId: IProduct; // Now contains the full Product object
+    productId: IProduct;
     quantity: number;
     price: number;
   }[];
@@ -34,6 +35,7 @@ const OrderSchema = new Schema({
     enum: ['pending', 'completed', 'canceled'],
     default: 'pending',
   },
+  canceledAt: { type: Date, default: null },
   notes: { type: String },
   orderItems: [
     {

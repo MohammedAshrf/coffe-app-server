@@ -1,5 +1,5 @@
 import { Router, Request } from 'express';
-import { register, login, deleteUser } from '../controllers/authController';
+import { register, login } from '../controllers/authController';
 import verifyToken from '../middlewares/auth';
 
 interface AuthRequest extends Request {
@@ -18,6 +18,6 @@ router.get('/protected', verifyToken, (req: AuthRequest, res) => {
 });
 
 // Delete user route (protected)
-router.delete('/delete/:id', verifyToken, deleteUser);
+// router.delete('/delete/:id', verifyToken, deleteUser);
 
 export const authRoutes = router;
