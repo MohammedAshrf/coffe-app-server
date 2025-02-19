@@ -1,23 +1,33 @@
 import app from './app';
 import connectDB from './config/db';
+import { VercelRequest, VercelResponse } from '@vercel/node';
 
-const PORT: number | string = process.env.PORT || 3000;
+connectDB(); // Ensure DB is connected
 
-console.log(
-  'MongoDB URI:',
-  process.env.MONGODB_URI?.replace(/:[^:]+@/, ':*****@'),
-); // Hide password for security
+export default function handler(req: VercelRequest, res: VercelResponse) {
+  app(req, res); // Pass request & response to Express
+}
 
-const startServer = async () => {
-  try {
-    await connectDB(); // Wait for DB connection
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1); // Exit the process on failure
-  }
-};
+// import app from './app';
+// import connectDB from './config/db';
 
-startServer();
+// const PORT: number | string = process.env.PORT || 3000;
+
+// console.log(
+//   'MongoDB URI:',
+//   process.env.MONGODB_URI?.replace(/:[^:]+@/, ':*****@'),
+// ); // Hide password for security
+
+// const startServer = async () => {
+//   try {
+//     await connectDB(); // Wait for DB connection
+//     app.listen(PORT, () => {
+//       console.log(`Server running on http://localhost:${PORT}`);
+//     });
+//   } catch (error) {
+//     console.error('Failed to start server:', error);
+//     process.exit(1); // Exit the process on failure
+//   }
+// };
+
+// startServer();
