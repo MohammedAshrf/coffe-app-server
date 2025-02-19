@@ -13,6 +13,8 @@ const app: Application = express();
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+app.set('trust proxy', 1); // ✅ Important for cookies on Vercel
+
 // The Main Route
 app.get('/', (req: Request, res: Response) => {
   res.send('Welcome to the API!');
