@@ -21,18 +21,18 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Authentication routes
-app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
 
 // User routes
-app.use('/api/users', userRoutes);
+app.use('/users', userRoutes);
 
 // Post routes
-app.use('/api/posts', postRoutes);
+app.use('/posts', postRoutes);
 
 // Product routes
-app.use('/api/products', productRoutes);
+app.use('/products', productRoutes);
 
 // Order routes
-app.use('/api/orders', orderRoutes);
+app.use('/orders', orderRoutes);
 
 export default app;
