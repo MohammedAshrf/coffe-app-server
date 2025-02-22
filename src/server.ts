@@ -1,13 +1,3 @@
-// import app from './app';
-// import connectDB from './config/db';
-// import { VercelRequest, VercelResponse } from '@vercel/node';
-
-// connectDB(); // Ensure DB is connected
-
-// export default function handler(req: VercelRequest, res: VercelResponse) {
-//   app(req, res); // Pass request & response to Express
-// }
-
 import app from './app';
 import connectDB from './config/db';
 
