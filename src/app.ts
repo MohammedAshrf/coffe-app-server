@@ -1,12 +1,9 @@
 import express, { Application, Request, Response } from 'express';
 import { authRoutes } from './routes/auth';
-import dotenv from 'dotenv';
 import { postRoutes } from './routes/post';
 import { productRoutes } from './routes/product';
 import { orderRoutes } from './routes/order';
 import { userRoutes } from './routes/user';
-
-dotenv.config();
 
 const app: Application = express();
 

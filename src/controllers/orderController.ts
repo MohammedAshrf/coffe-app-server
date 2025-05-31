@@ -3,6 +3,14 @@ import AppError from '../utils/AppError';
 import { catchError } from '../utils/catchError';
 import { IOrder, Order } from '../models/Order.model';
 import { User } from '../models/User.model';
+import { Product } from '../models/Product.model';
+import {
+  getAllEntities,
+  getEntitiy,
+  createEntitiy,
+  updateEntitiy,
+  deleteEntitiy,
+} from './factoryController';
 
 interface AuthRequest extends Request {
   user?: {
@@ -11,156 +19,162 @@ interface AuthRequest extends Request {
   };
 }
 
-export const getAllOrders = catchError(
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const orders = await Order.find().populate('orderItems.productId');
-    // .populate('userId');
+export const getAllOrders = getAllEntities(Order);
+export const getOrder = getEntitiy(Order);
+export const createOrder = createEntitiy(Order);
+export const updateOrder = updateEntitiy(Order);
+export const deleteOrder = deleteEntitiy(Order);
 
-    if (orders.length === 0) {
-      res.status(200).json({ message: 'No Orders found', data: { orders } });
-      return;
-    }
+// export const getAllOrders = catchError(
+//   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+//     const orders = await Order.find().populate('orderItems.productId');
+//     // .populate('userId');
 
-    res.status(200).json({
-      message: 'Orders fetched successfully',
-      data: { orders },
-    });
+//     if (orders.length === 0) {
+//       res.status(200).json({ message: 'No Orders found', data: { orders } });
+//       return;
+//     }
 
-    console.log('Orders:', orders);
-  },
-);
+//     res.status(200).json({
+//       message: 'Orders fetched successfully',
+//       data: { orders },
+//     });
 
-export const createOrder = catchError(
-  async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    const { orderItems, totalPrice, status } = req.body;
+//     console.log('Orders:', orders);
+//   },
+// );
 
-    if (!orderItems || !totalPrice) {
-      return next(
-        new AppError('Order items and total price are required', 400),
-      );
-    }
+// export const createOrder = catchError(
+//   async (
+//     req: AuthRequest,
+//     res: Response,
+//     next: NextFunction,
+//   ): Promise<void> => {
+//     const { orderItems, totalPrice, status } = req.body;
 
-    const userId = req.user?.id;
+//     if (!orderItems || !totalPrice) {
+//       return next(
+//         new AppError('Order items and total price are required', 400),
+//       );
+//     }
 
-    const newOrder: IOrder = await Order.create({
-      userId: userId,
-      orderItems,
-      totalPrice,
-      status: status,
-    });
+//     const userId = req.user?.id;
 
-    await User.findByIdAndUpdate(userId, { $push: { orders: newOrder._id } });
+//     const newOrder: IOrder = await Order.create({
+//       userId: userId,
+//       orderItems,
+//       totalPrice,
+//       status: status,
+//     });
 
-    res.status(201).json({
-      message: 'Order created successfully',
-      data: { order: newOrder },
-    });
-  },
-);
+//     await User.findByIdAndUpdate(userId, { $push: { orders: newOrder._id } });
 
-export const getOrder = catchError(
-  async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    const { id } = req.params;
+//     res.status(201).json({
+//       message: 'Order created successfully',
+//       data: { order: newOrder },
+//     });
+//   },
+// );
 
-    const query = id.includes('user-')
-      ? { userId: id.replace('user-', '') }
-      : { _id: id };
+// export const getOrder = catchError(
+//   async (
+//     req: AuthRequest,
+//     res: Response,
+//     next: NextFunction,
+//   ): Promise<void> => {
+//     const { id } = req.params;
 
-    const orders = await Order.find(query)
-      .populate('orderItems.productId')
-      .populate('userId');
+//     const query = id.includes('user-')
+//       ? { userId: id.replace('user-', '') }
+//       : { _id: id };
 
-    if (!orders || orders.length === 0) {
-      return next(new AppError('No orders found', 404));
-    }
+//     const orders = await Order.find(query)
+//       .populate('orderItems.productId')
+//       .populate('userId');
 
-    if (req.user?.role !== 'admin') {
-      if (req.user?.id !== orders[0].userId.toString()) {
-        return next(new AppError('Unauthorized to view this order', 403));
-      }
-    }
+//     if (!orders || orders.length === 0) {
+//       return next(new AppError('No orders found', 404));
+//     }
 
-    res.status(200).json({
-      message: 'Orders fetched successfully',
-      data: { orders },
-    });
-  },
-);
+//     if (req.user?.role !== 'admin') {
+//       if (req.user?.id !== orders[0].userId.toString()) {
+//         return next(new AppError('Unauthorized to view this order', 403));
+//       }
+//     }
 
-export const updateOrder = catchError(
-  async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    const { id } = req.params;
-    const { status } = req.body;
+//     res.status(200).json({
+//       message: 'Orders fetched successfully',
+//       data: { orders },
+//     });
+//   },
+// );
 
-    if (!status || !['pending', 'completed', 'canceled'].includes(status)) {
-      return next(
-        new AppError('Valid status is required to update an order', 400),
-      );
-    }
+// export const updateOrder = catchError(
+//   async (
+//     req: AuthRequest,
+//     res: Response,
+//     next: NextFunction,
+//   ): Promise<void> => {
+//     const { id } = req.params;
+//     const { status } = req.body;
 
-    const order = await Order.findById(id);
-    const userId = order?.userId.toString();
+//     if (!status || !['pending', 'completed', 'canceled'].includes(status)) {
+//       return next(
+//         new AppError('Valid status is required to update an order', 400),
+//       );
+//     }
 
-    console.log('userId', userId);
-    console.log('req.user?.id', req.user?.id);
+//     const order = await Order.findById(id);
+//     const userId = order?.userId.toString();
 
-    const user = await User.findById(req.user?.id);
-    if (userId !== req.user?.id && user?.role !== 'admin') {
-      return next(new AppError('You are not authorized to update orders', 403));
-    }
+//     console.log('userId', userId);
+//     console.log('req.user?.id', req.user?.id);
 
-    const updatedorder = await Order.findByIdAndUpdate(id).populate(
-      'orderItems.productId',
-    );
+//     const user = await User.findById(req.user?.id);
+//     if (userId !== req.user?.id && user?.role !== 'admin') {
+//       return next(new AppError('You are not authorized to update orders', 403));
+//     }
 
-    if (!updatedorder) {
-      return next(new AppError('Order not found', 404));
-    }
+//     const updatedorder = await Order.findByIdAndUpdate(id).populate(
+//       'orderItems.productId',
+//     );
 
-    if (status) updatedorder.status = status;
-    if (status == 'canceled') {
-      updatedorder.canceledAt = new Date();
-    }
+//     if (!updatedorder) {
+//       return next(new AppError('Order not found', 404));
+//     }
 
-    await updatedorder.save();
+//     if (status) updatedorder.status = status;
+//     if (status == 'canceled') {
+//       updatedorder.canceledAt = new Date();
+//     }
 
-    res.status(200).json({
-      message: 'Order updated successfully',
-      data: { updatedorder },
-    });
-  },
-);
+//     await updatedorder.save();
 
-export const deleteOrder = catchError(
-  async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    const { id } = req.params;
+//     res.status(200).json({
+//       message: 'Order updated successfully',
+//       data: { updatedorder },
+//     });
+//   },
+// );
 
-    const user = await User.findById(req.user?.id);
-    if (user?.role !== 'admin') {
-      return next(new AppError('You are not authorized to delete orders', 403));
-    }
+// export const deleteOrder = catchError(
+//   async (
+//     req: AuthRequest,
+//     res: Response,
+//     next: NextFunction,
+//   ): Promise<void> => {
+//     const { id } = req.params;
 
-    const order = await Order.findByIdAndDelete(id);
-    if (!order) {
-      return next(new AppError('Order not found', 404));
-    }
+//     const user = await User.findById(req.user?.id);
+//     if (user?.role !== 'admin') {
+//       return next(new AppError('You are not authorized to delete orders', 403));
+//     }
 
-    res.status(200).json({ message: 'Order deleted successfully' });
-  },
-);
+//     const order = await Order.findByIdAndDelete(id);
+//     if (!order) {
+//       return next(new AppError('Order not found', 404));
+//     }
+
+//     res.status(200).json({ message: 'Order deleted successfully' });
+//   },
+// );

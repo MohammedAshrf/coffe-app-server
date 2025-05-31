@@ -3,8 +3,16 @@ import AppError from '../utils/AppError';
 import { catchError } from '../utils/catchError';
 import { IProduct, Product } from '../models/Product.model';
 import { User } from '../models/User.model';
+import {
+  getAllEntities,
+  getEntitiy,
+  updateEntitiy,
+  deleteEntitiy,
+  createEntitiy,
+} from './factoryController';
+import { Types } from 'mongoose';
+import { Model } from 'mongoose';
 
-// Extend Express Request to include the user (provided by JWT middleware)
 interface AuthRequest extends Request {
   user?: {
     id: string;
@@ -12,144 +20,150 @@ interface AuthRequest extends Request {
   };
 }
 
-export const getAllProducts = catchError(
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const products = await Product.find();
+export const getAllProducts = getAllEntities(Product);
+export const getProduct = getEntitiy(Product);
+export const createProduct = createEntitiy(Product);
+export const updateProduct = updateEntitiy(Product);
+export const deleteProduct = deleteEntitiy(Product);
 
-    if (products.length === 0) {
-      res
-        .status(200)
-        .json({ message: 'No Products found', data: { products } });
-      return;
-    }
+// export const getAllProducts = catchError(
+//   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+//     const products = await Product.find();
 
-    res.status(200).json({
-      message: 'Products fetched successfully',
-      data: { products: products },
-    });
-  },
-);
+//     if (products.length === 0) {
+//       res
+//         .status(200)
+//         .json({ message: 'No Products found', data: { products } });
+//       return;
+//     }
 
-export const createProduct = catchError(
-  async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    const { name, description, price, imageUrl, category } = req.body;
+//     res.status(200).json({
+//       message: 'Products fetched successfully',
+//       data: { products: products },
+//     });
+//   },
+// );
 
-    if (!name || !description || !price || !imageUrl || !category) {
-      return next(new AppError('All fields are required', 400));
-    }
+// export const createProduct = catchError(
+//   async (
+//     req: AuthRequest,
+//     res: Response,
+//     next: NextFunction,
+//   ): Promise<void> => {
+//     const { name, description, price, imageUrl, category } = req.body;
 
-    console.log('User data:', req.user);
+//     if (!name || !description || !price || !imageUrl || !category) {
+//       return next(new AppError('All fields are required', 400));
+//     }
 
-    const user = await User.findById(req.user?.id);
+//     console.log('User data:', req.user);
 
-    if (user?.role !== 'admin') {
-      return next(new AppError('Unauthorized', 401));
-    }
+//     const user = await User.findById(req.user?.id);
 
-    const newProduct: IProduct = await Product.create({
-      name,
-      description,
-      price,
-      imageUrl,
-      category,
-    });
+//     if (user?.role !== 'admin') {
+//       return next(new AppError('Unauthorized', 401));
+//     }
 
-    res.status(201).json({
-      message: 'Product created successfully',
-      data: { product: newProduct },
-    });
-  },
-);
+//     const newProduct: IProduct = await Product.create({
+//       name,
+//       description,
+//       price,
+//       imageUrl,
+//       category,
+//     });
 
-export const getProduct = catchError(
-  async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    const { id } = req.params;
+//     res.status(201).json({
+//       message: 'Product created successfully',
+//       data: { product: newProduct },
+//     });
+//   },
+// );
 
-    const product = await Product.findById(id);
+// export const getProduct = catchError(
+//   async (
+//     req: AuthRequest,
+//     res: Response,
+//     next: NextFunction,
+//   ): Promise<void> => {
+//     const { id } = req.params;
 
-    if (!product) {
-      return next(new AppError('Product not found', 404));
-    }
+//     const product = await Product.findById(id);
 
-    res
-      .status(200)
-      .json({ message: 'Product fetched successfully', data: { product } });
-  },
-);
+//     if (!product) {
+//       return next(new AppError('Product not found', 404));
+//     }
 
-export const updateProduct = catchError(
-  async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    const { id } = req.params;
-    const { name, description, price, imageUrl, category } = req.body;
+//     res
+//       .status(200)
+//       .json({ message: 'Product fetched successfully', data: { product } });
+//   },
+// );
 
-    if (!name && !description && !price && !imageUrl && !category) {
-      return next(
-        new AppError('All fields are required to update a product', 400),
-      );
-    }
+// export const updateProduct = catchError(
+//   async (
+//     req: AuthRequest,
+//     res: Response,
+//     next: NextFunction,
+//   ): Promise<void> => {
+//     const { id } = req.params;
+//     const { name, description, price, imageUrl, category } = req.body;
 
-    const product = await Product.findByIdAndUpdate(id);
-    if (!product) {
-      return next(new AppError('Product not found', 404));
-    }
+//     if (!name && !description && !price && !imageUrl && !category) {
+//       return next(
+//         new AppError('All fields are required to update a product', 400),
+//       );
+//     }
 
-    const user = await User.findById(req.user?.id);
+//     const product = await Product.findByIdAndUpdate(id);
+//     if (!product) {
+//       return next(new AppError('Product not found', 404));
+//     }
 
-    if (user?.role !== 'admin') {
-      return next(
-        new AppError('You are not authorized to update this product', 403),
-      );
-    }
+//     const user = await User.findById(req.user?.id);
 
-    if (name) product.name = name;
-    if (description) product.description = description;
-    if (price) product.price = price;
-    if (imageUrl) product.imageUrl = imageUrl;
-    if (category) product.category = category;
+//     if (user?.role !== 'admin') {
+//       return next(
+//         new AppError('You are not authorized to update this product', 403),
+//       );
+//     }
 
-    await product.save();
+//     if (name) product.name = name;
+//     if (description) product.description = description;
+//     if (price) product.price = price;
+//     if (imageUrl) product.imageUrl = imageUrl;
+//     if (category) product.category = category;
 
-    res
-      .status(200)
-      .json({ message: 'Product updated successfully', data: { product } });
-  },
-);
+//     await product.save();
 
-export const deleteProduct = catchError(
-  async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    const { id } = req.params;
+//     res
+//       .status(200)
+//       .json({ message: 'Product updated successfully', data: { product } });
+//   },
+// );
 
-    const product = await Product.findById(id);
-    if (!product) {
-      return next(new AppError('Product not found', 404));
-    }
+// export const deleteProduct = catchError(
+//   async (
+//     req: AuthRequest,
+//     res: Response,
+//     next: NextFunction,
+//   ): Promise<void> => {
+//     const { id } = req.params;
 
-    const user = await User.findById(req.user?.id);
+//     const product = await Product.findById(id);
+//     if (!product) {
+//       return next(new AppError('Product not found', 404));
+//     }
 
-    if (user?.role !== 'admin') {
-      return next(
-        new AppError('You are not authorized to delete this product', 403),
-      );
-    }
+//     const user = await User.findById(req.user?.id);
 
-    await Product.findByIdAndDelete(id);
+//     if (user?.role !== 'admin') {
+//       return next(
+//         new AppError('You are not authorized to delete this product', 403),
+//       );
+//     }
 
-    res.status(200).json({ message: 'Product deleted successfully' });
-  },
-);
+//     await Product.findByIdAndDelete(id);
+
+//     res.status(200).json({ message: 'Product deleted successfully' });
+//   },
+// );

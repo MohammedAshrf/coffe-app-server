@@ -3,14 +3,30 @@ import { Request, Response, NextFunction, CookieOptions } from 'express';
 import AppError from '../utils/AppError';
 import { IUser, User } from '../models/User.model';
 import { catchError } from '../utils/catchError';
+import { createEntitiy } from './factoryController';
+import { Model, Types } from 'mongoose';
 
-const ACCESS_TOKEN_EXPIRES = '30m'; // Short-lived tokens
-const REFRESH_TOKEN_EXPIRES = '7d'; // The refresh token gets to hang out a bit longer.
+console.log(
+  '<<<<<<<<<< jwt env test >>>>>> ' + process.env.ACCESS_TOKEN_EXPIRES,
+);
+
+if (!process.env.ACCESS_TOKEN_EXPIRES) {
+  throw new Error('Missing ACCESS_TOKEN_EXPIRES in .env');
+}
+
+if (!process.env.REFRESH_TOKEN_EXPIRES) {
+  throw new Error('Missing REFRESH_TOKEN_EXPIRES in .env');
+}
+
+const AccessTokenExpirastion = process.env
+  .ACCESS_TOKEN_EXPIRES as jwt.SignOptions['expiresIn'];
+const RefreshTokenExpires = process.env
+  .REFRESH_TOKEN_EXPIRES as jwt.SignOptions['expiresIn'];
 
 // Generate JWT token
-const generateToken = (id: string): string => {
-  return jwt.sign({ id }, process.env.JWT_SECRET as string, {
-    expiresIn: ACCESS_TOKEN_EXPIRES,
+const generateToken = (id: string, role: string): string => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET as string, {
+    expiresIn: AccessTokenExpirastion,
   });
 };
 
@@ -28,12 +44,12 @@ const sendResponse = async (
   user: any,
   code: number,
 ): Promise<void> => {
-  const token = generateToken(user._id);
+  const token = generateToken(user._id, user.role);
   const refreshToken = jwt.sign(
     { id: user._id },
     process.env.REFRESH_TOKEN as string,
     {
-      expiresIn: REFRESH_TOKEN_EXPIRES,
+      expiresIn: RefreshTokenExpires,
     },
   );
 
@@ -49,14 +65,17 @@ const sendResponse = async (
   res.status(code).json({ status: 'success', token, data: { user } });
 };
 
-// Register handler
-export const register = catchError(
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const newUser = await User.create({ ...req.body });
-
-    sendResponse(res, newUser, 201);
-  },
+export const register = createEntitiy(
+  User as Model<IUser & { _id: Types.ObjectId }>,
 );
+
+// Register handler
+// export const register = catchError(
+//   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+//     const newUser = await User.create({ ...req.body });
+//     sendResponse(res, newUser, 201);
+//   },
+// );
 
 // Login handler
 export const login = catchError(
@@ -164,7 +183,10 @@ export const refresh = catchError(
         if (!existingUser)
           return next(new AppError('Refresh token is not valid', 403));
 
-        const token = generateToken(existingUser._id as string);
+        const token = generateToken(
+          existingUser._id as string,
+          existingUser.role as string,
+        );
         return res
           .status(200)
           .json({ status: 'success', token, data: { user: existingUser } });
