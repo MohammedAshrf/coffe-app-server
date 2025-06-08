@@ -27,6 +27,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction): void => {
     // Attach the decoded payload to the request object.
     // You may extend the Request interface to include a user property if needed.
     (req as any).user = decoded;
+
     next();
   } catch (err) {
     res.status(401).json({ message: 'Token is not valid' });

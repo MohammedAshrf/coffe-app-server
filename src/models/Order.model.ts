@@ -41,7 +41,7 @@ const OrderSchema = new Schema({
     {
       productId: { type: Schema.Types.ObjectId, ref: 'Product' },
       quantity: Number,
-      price: Number,
+      // price: Number,
     },
   ],
   createdAt: { type: Date, default: Date.now },

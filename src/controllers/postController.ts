@@ -3,11 +3,11 @@ import { Post, IPost } from '../models/Post.model';
 import AppError from '../utils/AppError';
 import { catchError } from '../utils/catchError';
 import {
-  createEntitiy,
-  deleteEntitiy,
+  createEntity,
+  deleteEntity,
   getAllEntities,
-  getEntitiy,
-  updateEntitiy,
+  getEntity,
+  updateEntity,
 } from './factoryController';
 import { Model, Types } from 'mongoose';
 
@@ -22,16 +22,16 @@ interface AuthRequest extends Request {
 export const getAllPosts = getAllEntities(
   Post as Model<IPost & { _id: Types.ObjectId }>,
 );
-export const getPost = getEntitiy(
+export const getPost = getEntity(
   Post as Model<IPost & { _id: Types.ObjectId }>,
 );
-export const createPost = createEntitiy(
+export const createPost = createEntity(
   Post as Model<IPost & { _id: Types.ObjectId }>,
 );
-export const updatePost = updateEntitiy(
+export const updatePost = updateEntity(
   Post as Model<IPost & { _id: Types.ObjectId }>,
 );
-export const deletePost = deleteEntitiy(
+export const deletePost = deleteEntity(
   Post as Model<IPost & { _id: Types.ObjectId }>,
 );
 

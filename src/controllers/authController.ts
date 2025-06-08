@@ -1,9 +1,9 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction, CookieOptions } from 'express';
 import AppError from '../utils/AppError';
 import { IUser, User } from '../models/User.model';
 import { catchError } from '../utils/catchError';
-import { createEntitiy } from './factoryController';
+import { createEntity } from './factoryController';
 import { Model, Types } from 'mongoose';
 
 console.log(
@@ -65,7 +65,7 @@ const sendResponse = async (
   res.status(code).json({ status: 'success', token, data: { user } });
 };
 
-export const register = createEntitiy(
+export const register = createEntity(
   User as Model<IUser & { _id: Types.ObjectId }>,
 );
 
@@ -218,18 +218,3 @@ export const logout = catchError(
     return res.status(200).json({ status: 'success' });
   },
 );
-
-// Delete handler
-// export const deleteUser = catchError(
-//   async (req: Request, res: Response): Promise<any> => {
-//     const userId = req.params.id; // Get user ID from request parameters
-//     const deletedUser = await User.findByIdAndDelete(userId);
-
-//     if (!deletedUser) {
-//       res.status(404).json({ message: 'User not found' });
-//       return;
-//     }
-
-//     res.json({ message: 'User deleted successfully' });
-//   },
-// );

@@ -20,8 +20,8 @@ class AppError extends Error {
          captureStackTrace method 
          target: The error object to which the stack trace should be added.
     constructorOpt: The constructor function of the error object.
-    
-         */
+    */
+
     Error.captureStackTrace(this, this.constructor);
   }
 }

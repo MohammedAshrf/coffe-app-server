@@ -5,13 +5,14 @@ import { IProduct, Product } from '../models/Product.model';
 import { User } from '../models/User.model';
 import {
   getAllEntities,
-  getEntitiy,
-  updateEntitiy,
-  deleteEntitiy,
-  createEntitiy,
+  getEntity,
+  updateEntity,
+  deleteEntity,
+  createEntity,
 } from './factoryController';
 import { Types } from 'mongoose';
 import { Model } from 'mongoose';
+import { create } from 'domain';
 
 interface AuthRequest extends Request {
   user?: {
@@ -21,10 +22,10 @@ interface AuthRequest extends Request {
 }
 
 export const getAllProducts = getAllEntities(Product);
-export const getProduct = getEntitiy(Product);
-export const createProduct = createEntitiy(Product);
-export const updateProduct = updateEntitiy(Product);
-export const deleteProduct = deleteEntitiy(Product);
+export const getProduct = getEntity(Product);
+export const createProduct = createEntity(Product);
+export const updateProduct = updateEntity(Product);
+export const deleteProduct = deleteEntity(Product);
 
 // export const getAllProducts = catchError(
 //   async (req: Request, res: Response, next: NextFunction): Promise<void> => {

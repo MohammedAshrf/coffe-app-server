@@ -3,13 +3,12 @@ import AppError from '../utils/AppError';
 import { catchError } from '../utils/catchError';
 import { IOrder, Order } from '../models/Order.model';
 import { User } from '../models/User.model';
-import { Product } from '../models/Product.model';
 import {
   getAllEntities,
-  getEntitiy,
-  createEntitiy,
-  updateEntitiy,
-  deleteEntitiy,
+  getEntity,
+  createEntity,
+  updateEntity,
+  deleteEntity,
 } from './factoryController';
 
 interface AuthRequest extends Request {
@@ -19,11 +18,11 @@ interface AuthRequest extends Request {
   };
 }
 
-export const getAllOrders = getAllEntities(Order);
-export const getOrder = getEntitiy(Order);
-export const createOrder = createEntitiy(Order);
-export const updateOrder = updateEntitiy(Order);
-export const deleteOrder = deleteEntitiy(Order);
+// export const getAllOrders = getAllEntities(Order);
+// export const getOrder = getEntity(Order);
+// export const createOrder = createEntity(Order);
+// export const updateOrder = updateEntity(Order);
+// export const deleteOrder = deleteEntity(Order);
 
 // export const getAllOrders = catchError(
 //   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -41,6 +40,39 @@ export const deleteOrder = deleteEntitiy(Order);
 //     });
 
 //     console.log('Orders:', orders);
+//   },
+// );
+
+// export const getOrder = catchError(
+//   async (
+//     req: AuthRequest,
+//     res: Response,
+//     next: NextFunction,
+//   ): Promise<void> => {
+//     const { id } = req.params;
+
+//     const query = id.includes('user-')
+//       ? { userId: id.replace('user-', '') }
+//       : { _id: id };
+
+//     const orders = await Order.find(query)
+//       .populate('orderItems.productId')
+//       .populate('userId');
+
+//     if (!orders || orders.length === 0) {
+//       return next(new AppError('No orders found', 404));
+//     }
+
+//     if (req.user?.role !== 'admin' && req.user?.id !== id) {
+//       return next(
+//         new AppError('You are not authorized to view this order', 403),
+//       );
+//     }
+
+//     res.status(200).json({
+//       message: 'Orders fetched successfully',
+//       data: { orders },
+//     });
 //   },
 // );
 
@@ -72,39 +104,6 @@ export const deleteOrder = deleteEntitiy(Order);
 //     res.status(201).json({
 //       message: 'Order created successfully',
 //       data: { order: newOrder },
-//     });
-//   },
-// );
-
-// export const getOrder = catchError(
-//   async (
-//     req: AuthRequest,
-//     res: Response,
-//     next: NextFunction,
-//   ): Promise<void> => {
-//     const { id } = req.params;
-
-//     const query = id.includes('user-')
-//       ? { userId: id.replace('user-', '') }
-//       : { _id: id };
-
-//     const orders = await Order.find(query)
-//       .populate('orderItems.productId')
-//       .populate('userId');
-
-//     if (!orders || orders.length === 0) {
-//       return next(new AppError('No orders found', 404));
-//     }
-
-//     if (req.user?.role !== 'admin') {
-//       if (req.user?.id !== orders[0].userId.toString()) {
-//         return next(new AppError('Unauthorized to view this order', 403));
-//       }
-//     }
-
-//     res.status(200).json({
-//       message: 'Orders fetched successfully',
-//       data: { orders },
 //     });
 //   },
 // );

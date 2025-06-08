@@ -3,10 +3,10 @@ import AppError from '../utils/AppError';
 import { catchError } from '../utils/catchError';
 import { IUser, User } from '../models/User.model';
 import {
-  deleteEntitiy,
+  deleteEntity,
   getAllEntities,
-  getEntitiy,
-  updateEntitiy,
+  getEntity,
+  updateEntity,
 } from './factoryController';
 import { Model } from 'mongoose';
 import { Types } from 'mongoose';
@@ -21,13 +21,13 @@ interface AuthRequest extends Request {
 export const getAllUsers = getAllEntities(
   User as Model<IUser & { _id: Types.ObjectId }>,
 );
-export const getUser = getEntitiy(
+export const getUser = getEntity(
   User as Model<IUser & { _id: Types.ObjectId }>,
 );
-export const updateUser = updateEntitiy(
+export const updateUser = updateEntity(
   User as Model<IUser & { _id: Types.ObjectId }>,
 );
-export const deleteUser = deleteEntitiy(
+export const deleteUser = deleteEntity(
   User as Model<IUser & { _id: Types.ObjectId }>,
 );
 
